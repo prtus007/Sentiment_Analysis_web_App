@@ -7,14 +7,19 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+    <div class="background"></div>
+
     <div class="container">
-        <h1>Sentiment Analysis App</h1>
-        <p>Enter a sentence and check whether the sentiment is positive or negative.</p>
+        <h1>Sentiment Analysis</h1>
+        <p class="subtitle">Analyze whether your text expresses a positive or negative sentiment.</p>
 
-        <textarea id="userText" rows="6" placeholder="Type your text here..."></textarea>
-        <button onclick="analyzeSentiment()">Analyze</button>
+        <div class="input-box">
+            <textarea id="userText" rows="6" placeholder="Type your sentence or review here..."></textarea>
+        </div>
 
-        <div id="result"></div>
+        <button onclick="analyzeSentiment()">Analyze Sentiment</button>
+
+        <div id="result" class="result-box"></div>
     </div>
 
     <script>
@@ -22,7 +27,12 @@
             const text = document.getElementById("userText").value;
             const resultDiv = document.getElementById("result");
 
-            resultDiv.innerHTML = "Analyzing...";
+            if (!text.trim()) {
+                resultDiv.innerHTML = "<p class='error'>Please enter some text.</p>";
+                return;
+            }
+
+            resultDiv.innerHTML = "<p class='loading'>Analyzing...</p>";
 
             try {
                 const response = await fetch("/predict", {
@@ -36,16 +46,19 @@
                 const data = await response.json();
 
                 if (data.sentiment) {
-                    resultDiv.innerHTML =
-                        "<h2>Sentiment: " + data.sentiment + "</h2>" +
-                        "<p>Confidence: " + data.confidence + "%</p>";
+                    let sentimentClass = data.sentiment === "Positive" ? "positive" : "negative";
+
+                    resultDiv.innerHTML = `
+                        <div class="result-card ${sentimentClass}">
+                            <h2>${data.sentiment}</h2>
+                            <p>Confidence: ${data.confidence}%</p>
+                        </div>
+                    `;
                 } else {
-                    resultDiv.innerHTML =
-                        "<p style='color:red;'>" + data.error + "</p>";
+                    resultDiv.innerHTML = `<p class="error">${data.error}</p>`;
                 }
             } catch (error) {
-                resultDiv.innerHTML =
-                    "<p style='color:red;'>Something went wrong.</p>";
+                resultDiv.innerHTML = "<p class='error'>Something went wrong.</p>";
             }
         }
     </script>

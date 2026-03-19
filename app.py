@@ -1,13 +1,23 @@
 from flask import Flask, render_template, request, jsonify
 import pickle
+import os
 
 app = Flask(__name__)
 
-with open("model.pkl", "rb") as f:
-    model = pickle.load(f)
+model = None
+vectorizer = None
 
-with open("vectorizer.pkl", "rb") as f:
-    vectorizer = pickle.load(f)
+try:
+    with open("model.pkl", "rb") as f:
+        model = pickle.load(f)
+
+    with open("vectorizer.pkl", "rb") as f:
+        vectorizer = pickle.load(f)
+
+    print("Model and vectorizer loaded successfully")
+
+except Exception as e:
+    print("Error loading model files:", e)
 
 @app.route("/")
 def home():
@@ -16,6 +26,9 @@ def home():
 @app.route("/predict", methods=["POST"])
 def predict():
     try:
+        if model is None or vectorizer is None:
+            return jsonify({"error": "Model files not loaded properly"})
+
         data = request.get_json()
         text = data.get("text", "").strip()
 

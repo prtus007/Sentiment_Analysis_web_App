@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Analysis App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Sentiment Analysis App</h1>
+        <p>Enter a sentence and check whether the sentiment is positive or negative.</p>
+
+        <textarea id="userText" rows="6" placeholder="Type your text here..."></textarea>
+        <button onclick="analyzeSentiment()">Analyze</button>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function analyzeSentiment() {
+            const text = document.getElementById("userText").value;
+            const resultDiv = document.getElementById("result");
+
+            resultDiv.innerHTML = "Analyzing...";
+
+            try {
+                const response = await fetch("/predict", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ text: text })
+                });
+
+                const data = await response.json();
+
+                if (data.sentiment) {
+                    resultDiv.innerHTML =
+                        "<h2>Sentiment: " + data.sentiment + "</h2>" +
+                        "<p>Confidence: " + data.confidence + "%</p>";
+                } else {
+                    resultDiv.innerHTML =
+                        "<p style='color:red;'>" + data.error + "</p>";
+                }
+            } catch (error) {
+                resultDiv.innerHTML =
+                    "<p style='color:red;'>Something went wrong.</p>";
+            }
+        }
+    </script>
+</body>
+</html>

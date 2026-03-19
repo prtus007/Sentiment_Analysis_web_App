@@ -7,16 +7,11 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="background"></div>
-
     <div class="container">
         <h1>Sentiment Analysis</h1>
-        <p class="subtitle">Analyze whether your text expresses a positive or negative sentiment.</p>
+        <p class="subtitle">Analyze whether your text is positive or negative.</p>
 
-        <div class="input-box">
-            <textarea id="userText" rows="6" placeholder="Type your sentence or review here..."></textarea>
-        </div>
-
+        <textarea id="userText" rows="6" placeholder="Type your sentence here..."></textarea>
         <button onclick="analyzeSentiment()">Analyze Sentiment</button>
 
         <div id="result" class="result-box"></div>
@@ -46,16 +41,13 @@
                 const data = await response.json();
 
                 if (data.sentiment) {
-                    let sentimentClass = data.sentiment === "Positive" ? "positive" : "negative";
-
-                    resultDiv.innerHTML = `
-                        <div class="result-card ${sentimentClass}">
-                            <h2>${data.sentiment}</h2>
-                            <p>Confidence: ${data.confidence}%</p>
-                        </div>
-                    `;
+                    resultDiv.innerHTML =
+                        "<div class='result-card " + data.sentiment.toLowerCase() + "'>" +
+                        "<h2>" + data.sentiment + "</h2>" +
+                        "<p>Confidence: " + data.confidence + "%</p>" +
+                        "</div>";
                 } else {
-                    resultDiv.innerHTML = `<p class="error">${data.error}</p>`;
+                    resultDiv.innerHTML = "<p class='error'>" + data.error + "</p>";
                 }
             } catch (error) {
                 resultDiv.innerHTML = "<p class='error'>Something went wrong.</p>";
